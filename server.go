@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +12,10 @@ func setupRouter() *gin.Engine {
 	// Disable Console Color
 	// gin.DisableConsoleColor()
 	r := gin.Default()
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(http.StatusOK, "pong")
+	})
 
 	r.GET("/someGet", someMethod)
 	r.POST("/somePost", someMethod)
@@ -42,6 +48,8 @@ func setupRouter() *gin.Engine {
 	})
 
 	r.GET("/welcome", welcomeQueryString)
+	r.POST("/form_post", formPost)
+	r.POST("/form_post_with_querystring", formPostWithQueryString)
 
 	return r
 }
@@ -60,6 +68,39 @@ func someMethod(c *gin.Context) {
 func welcomeQueryString(c *gin.Context) {
 	firstname := c.DefaultQuery("firstname", "Guest")
 	lastname := c.Query("lastname")
-
 	c.JSON(200, gin.H{"firstname": firstname, "lastname": lastname})
+}
+
+func formPost(c *gin.Context) {
+	message := c.PostForm("message")
+	nick := c.DefaultPostForm("nick", "anonymous")
+
+	headerType := c.GetHeader("Content-Type")
+
+	c.JSON(200, gin.H{
+		"status":              "posted",
+		"message":             message,
+		"nick":                nick,
+		"header-content-type": headerType,
+	})
+}
+
+func formPostWithQueryString(c *gin.Context) {
+	id := c.Query("id")
+	strPage := c.DefaultQuery("page", "0")
+	intPage, _ := strconv.Atoi(strPage)
+
+	message := c.PostForm("message")
+	nick := c.DefaultPostForm("nick", "anonymous")
+
+	headerType := c.GetHeader("Content-Type")
+
+	c.JSON(200, gin.H{
+		"status":              "posted",
+		"message":             message,
+		"nick":                nick,
+		"header-content-type": headerType,
+		"id":                  id,
+		"page":                intPage,
+	})
 }
