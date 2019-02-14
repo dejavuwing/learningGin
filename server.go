@@ -41,6 +41,8 @@ func setupRouter() *gin.Engine {
 		c.JSON(200, gin.H{"color": color, "fruits": fruitArray})
 	})
 
+	r.GET("/welcome", welcomeQueryString)
+
 	return r
 }
 
@@ -53,4 +55,11 @@ func main() {
 func someMethod(c *gin.Context) {
 	httpMethod := c.Request.Method
 	c.JSON(200, gin.H{"status": "good", "sending": httpMethod})
+}
+
+func welcomeQueryString(c *gin.Context) {
+	firstname := c.DefaultQuery("firstname", "Guest")
+	lastname := c.Query("lastname")
+
+	c.JSON(200, gin.H{"firstname": firstname, "lastname": lastname})
 }
